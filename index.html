@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="Sky SG">
 <meta name="theme-color" content="#2F7FC1">
 <title>Sky SG</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -87,6 +90,11 @@ button:focus-visible,input:focus-visible{outline:2px solid currentColor;outline-
 .links a{color:var(--ink);text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:.88rem}
 .tip a{color:inherit;font-weight:600}
 .hero .tip{margin-top:12px;font-size:.95rem}
+.inst{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.inst-btns{display:flex;gap:6px;flex:none}
+.inst button{border:0;border-radius:10px;padding:7px 12px;font-weight:600}
+#instGo{background:var(--ink);color:var(--sky)}
+#instX{background:transparent;color:var(--ink);padding:7px 8px}
 .empty{margin-top:28px;padding:18px;border-radius:16px;background:var(--panel);text-align:center}
 .empty button{margin-top:10px;background:var(--ink);color:var(--sky);border:0;border-radius:12px;padding:10px 16px;font-weight:600}
 footer{margin-top:28px;font-size:.76rem;color:var(--soft)}
@@ -130,6 +138,7 @@ dialog[open]{animation:up .22s ease-out}
     <span id="ago">Getting the latest data…</span>
     <button class="upd" id="refresh" aria-busy="false"><span class="spin" aria-hidden="true">↻</span> Update now</button>
   </div>
+  <div id="install" class="msg inst" hidden><span id="instText"></span><span class="inst-btns"><button type="button" id="instGo" hidden>Install</button><button type="button" id="instX" aria-label="Dismiss">✕</button></span></div>
   <div id="msg" class="msg" role="status" hidden></div>
   <div id="content" aria-live="polite"></div>
   <footer>
@@ -471,7 +480,30 @@ setInterval(()=>{
 }, 30000);
 document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && Date.now()-fetchedAt > 5*60*1000) update(); });
 
-update();
+update(); // load weather first
+
+// ---------- install as an app ----------
+try{ (function(){
+  const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  let dismissed = false; try{ dismissed = localStorage.getItem("skysg:instx") === "1"; }catch(e){}
+  if(standalone || dismissed) return;
+  const box = $("install"), go = $("instGo");
+  const hide = () => { box.hidden = true; try{ localStorage.setItem("skysg:instx","1"); }catch(e){} };
+  $("instX").onclick = hide;
+  let deferred = null;
+  window.addEventListener("beforeinstallprompt", e => { // Android Chrome, Edge
+    e.preventDefault(); deferred = e;
+    $("instText").textContent = "Install Sky SG as an app.";
+    go.hidden = false; box.hidden = false;
+  });
+  go.onclick = async () => { if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; box.hidden = true; };
+  window.addEventListener("appinstalled", () => { box.hidden = true; });
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)){ // iPhone: no install button, show how
+    $("instText").textContent = "Install: tap Share, then Add to Home Screen.";
+    box.hidden = false;
+  }
+})(); }catch(e){}
+if("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 </script>
 </body>
 </html>

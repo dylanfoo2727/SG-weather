@@ -1,0 +1,15 @@
+{
+  "name": "Sky SG",
+  "short_name": "Sky SG",
+  "description": "Singapore weather, air quality and tips from NEA and MSS data.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2F7FC1",
+  "theme_color": "#2F7FC1",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
