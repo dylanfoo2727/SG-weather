@@ -83,6 +83,10 @@ button:focus-visible,input:focus-visible{outline:2px solid currentColor;outline-
 .aq{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
 .aq .val{font-size:2rem}
 .retry{margin-top:6px;align-self:flex-start;background:var(--ink);color:var(--sky);border:0;border-radius:10px;padding:6px 12px;font-weight:600;font-size:.85rem}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.links a{color:var(--ink);text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:.88rem}
+.tip a{color:inherit;font-weight:600}
+.hero .tip{margin-top:12px;font-size:.95rem}
 .empty{margin-top:28px;padding:18px;border-radius:16px;background:var(--panel);text-align:center}
 .empty button{margin-top:10px;background:var(--ink);color:var(--sky);border:0;border-radius:12px;padding:10px 16px;font-weight:600}
 footer{margin-top:28px;font-size:.76rem;color:var(--soft)}
@@ -129,7 +133,7 @@ dialog[open]{animation:up .22s ease-out}
   <div id="msg" class="msg" role="status" hidden></div>
   <div id="content" aria-live="polite"></div>
   <footer>
-    Data: National Environment Agency (NEA) and Meteorological Service Singapore (MSS), via <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a>. For official warnings and haze advisories, use NEA's myENV app, <a href="https://www.weather.gov.sg" target="_blank" rel="noopener">weather.gov.sg</a> or <a href="https://www.haze.gov.sg" target="_blank" rel="noopener">haze.gov.sg</a>. Tips follow NEA, MOH and WHO guidance and are not medical advice.
+    Data: NEA and MSS via <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a>. Tips are general guidance, not medical advice.
   </footer>
 </main>
 
@@ -146,12 +150,12 @@ dialog[open]{animation:up .22s ease-out}
 <dialog id="setSheet" aria-labelledby="setTitle">
   <div class="sh">
     <div class="sh-head"><h3 id="setTitle">Customise</h3><button class="done" data-close>Done</button></div>
-    <p class="hint">Choose what to show. Hidden items are not downloaded, so updates are faster.</p>
+    <p class="hint">Hidden items update faster.</p>
     <div id="toggles"></div>
     <div class="group">Tips</div>
-    <label class="tog"><span>Show tips<small>Umbrella, sun protection and air quality advice</small></span><input type="checkbox" class="sw" id="tipsSw"></label>
+    <label class="tog"><span>Show tips<small>Umbrella, sunscreen, air quality</small></span><input type="checkbox" class="sw" id="tipsSw"></label>
     <div class="group">Updates</div>
-    <label class="tog"><span>Update automatically<small>Every 5 minutes while the app is open</small></span><input type="checkbox" class="sw" id="autoSw"></label>
+    <label class="tog"><span>Auto-update<small>Every 5 minutes</small></span><input type="checkbox" class="sw" id="autoSw"></label>
   </div>
 </dialog>
 
@@ -163,14 +167,14 @@ const REGIONS = [ // NEA region label locations, from the PSI feed
   {id:"central",name:"Central",lat:1.35735,lon:103.82}
 ];
 const CARDS = [
-  {id:"forecast2h", label:"2-hour forecast", hint:"For your area", feeds:["two-hr-forecast"]},
-  {id:"air", label:"Air quality", hint:"24-hour PSI and 1-hour PM2.5 for your region", feeds:["psi","pm25"]},
+  {id:"forecast2h", label:"2-hour forecast", hint:"Your area", feeds:["two-hr-forecast"]},
+  {id:"air", label:"Air quality", hint:"PSI and PM2.5, your region", feeds:["psi","pm25"]},
   {id:"temp", label:"Temperature", hint:"Nearest weather station", feeds:["air-temperature"]},
   {id:"humidity", label:"Humidity", hint:"Nearest weather station", feeds:["relative-humidity"]},
   {id:"wind", label:"Wind speed", hint:"Nearest weather station", feeds:["wind-speed"]},
-  {id:"rain", label:"Rainfall now", hint:"Last 5 minutes, nearest rain gauge", feeds:["rainfall"]},
-  {id:"uv", label:"UV index", hint:"Measured at Changi, 7am to 7pm", feeds:["uv"]},
-  {id:"today", label:"Today's forecast", hint:"6-hour blocks for your region", feeds:["twenty-four-hr-forecast"]},
+  {id:"rain", label:"Rainfall now", hint:"Nearest rain gauge", feeds:["rainfall"]},
+  {id:"uv", label:"UV index", hint:"7am to 7pm", feeds:["uv"]},
+  {id:"today", label:"Today's forecast", hint:"Your region", feeds:["twenty-four-hr-forecast"]},
   {id:"outlook", label:"4-day outlook", hint:"Singapore-wide", feeds:["four-day-outlook"]}
 ];
 const FEED_ORDER = ["two-hr-forecast","psi","pm25","air-temperature","relative-humidity","wind-speed","rainfall","uv","twenty-four-hr-forecast","four-day-outlook"];
@@ -224,14 +228,14 @@ async function update(only){
   await fetchFeeds(list);
   // one more attempt for anything that failed, after the rate-limit window resets
   const again = list.filter(f=>failedFeeds.has(f));
-  if(again.length){ $("ago").textContent = "Retrying a few items…"; await sleep(10500); await fetchFeeds(again); }
+  if(again.length){ $("ago").textContent = "Retrying…"; await sleep(10500); await fetchFeeds(again); }
   busy = false; $("refresh").setAttribute("aria-busy","false");
   if(list.some(f=>!failedFeeds.has(f))) fetchedAt = Date.now();
   buildAreas();
-  if(!areas.length){ showMsg("Could not reach NEA's data service. Check your connection, then tap Update now."); tickAgo(); return; }
+  if(!areas.length){ showMsg("Could not reach NEA. Check your connection and tap Update now."); tickAgo(); return; }
   render();
   const still = list.filter(f=>failedFeeds.has(f)).map(f=>FEED_NAME[f]);
-  if(still.length) showMsg(`Could not update: ${still.join(", ")}. Tap Retry on that item, or wait a minute.`);
+  if(still.length) showMsg(`Could not load ${still.join(", ")}. Tap Retry.`);
 }
 function buildAreas(){
   const two = data["two-hr-forecast"];
@@ -277,11 +281,11 @@ function psiBand(v){
   if(v<=300) return ["Very unhealthy","b-vunh"];
   return ["Hazardous","b-haz"];
 }
-function psiAdvice(v){ // 24-hr PSI: for planning the next day
-  if(v<=100) return "Normal activities are fine.";
-  if(v<=200) return "Planning ahead: healthy people should reduce prolonged or strenuous outdoor exertion. The elderly, pregnant women and children should minimise it, and people with chronic lung or heart disease should avoid it.";
-  if(v<=300) return "Planning ahead: healthy people should avoid prolonged or strenuous outdoor exertion. The elderly, pregnant women and children should minimise outdoor activity, and people with chronic lung or heart disease should avoid it.";
-  return "Planning ahead: minimise outdoor activity. Vulnerable people should avoid it. If you must be outdoors for several hours, a well-fitted N95 mask can reduce exposure.";
+function psiAdvice(v){ // 24-hr PSI: for planning ahead
+  if(v<=100) return "Planning ahead: normal outdoor plans are fine.";
+  if(v<=200) return "Planning ahead: reduce long or strenuous outdoor activity.";
+  if(v<=300) return "Planning ahead: avoid long or strenuous outdoor activity.";
+  return "Planning ahead: minimise outdoor activity. Wear a fitted N95 if outdoors for hours.";
 }
 function pmBand(v){
   if(v<=55) return ["Normal","b-good"];
@@ -290,34 +294,31 @@ function pmBand(v){
   return ["Very high","b-haz"];
 }
 function pmAdvice(v){ // 1-hr PM2.5: for the next hour
-  if(v<=55) return "Next hour: continue normal activities.";
-  if(v<=150) return "Next hour: reduce strenuous outdoor activity. Vulnerable people (elderly, pregnant women, children, heart or lung conditions) should avoid it.";
-  if(v<=250) return "Next hour: avoid strenuous outdoor activity, and vulnerable people should minimise outdoor activity. See haze.gov.sg for NEA's full advice.";
-  return "Next hour: minimise outdoor activity. See haze.gov.sg for NEA's full advice.";
+  if(v<=55) return "Next hour: normal activities are fine.";
+  if(v<=150) return "Next hour: reduce strenuous outdoor activity.";
+  if(v<=250) return "Next hour: avoid strenuous outdoor activity.";
+  return "Next hour: minimise time outdoors.";
 }
-function uvAdvice(v, iso){
-  const h = +new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",hour12:false,timeZone:"Asia/Singapore"});
+function uvAdvice(v){
   const nowH = +new Date().toLocaleTimeString("en-GB",{hour:"2-digit",hour12:false,timeZone:"Asia/Singapore"});
-  if(nowH >= 19 || nowH < 7) return ["", "🌙 The sun is down. No sun protection needed now."];
-  if(v<=2) return ["Low", "🧴 Low right now, but UV in Singapore can rise quickly. Keep sunscreen handy if you will be out around midday."];
-  if(v<=5) return ["Moderate", "🧴 Use sunscreen of SPF 30 or higher and reapply every 2 hours. A hat and sunglasses help."];
-  if(v<=7) return ["High", "🧴 Use sunscreen of SPF 30 or higher, reapply every 2 hours, and seek shade where you can."];
-  if(v<=10) return ["Very high", "🧴 Extra protection needed. Seek shade, especially 11am to 3pm, cover up, and use SPF 30+ sunscreen."];
-  return ["Extreme", "🧴 Extra protection needed. Avoid the midday sun if you can, cover up, and use SPF 30+ sunscreen."];
+  if(nowH >= 19 || nowH < 7) return ["", ""];
+  if(v<=2) return ["Low", "Low risk right now."];
+  if(v<=5) return ["Moderate", "🧴 SPF 30+ sunscreen, reapply every 2 hours."];
+  if(v<=7) return ["High", "🧴 SPF 30+ sunscreen, reapply every 2 hours."];
+  if(v<=10) return ["Very high", "🧴 SPF 30+, hat and shade, especially 11am to 3pm."];
+  return ["Extreme", "🧴 SPF 30+, cover up, avoid the midday sun."];
 }
 function weatherTips(text2h, a){
-  const tips = [];
-  const t = (text2h||"").toLowerCase();
-  if(isWet(t)) tips.push(["☂️","Bring an umbrella. Rain is expected in the next 2 hours."]);
-  if(t.includes("thunder")) tips.push(["⚡","If you hear thunder, move indoors or under shelter, and stay away from open fields and water."]);
-  if(t.includes("thunder") || t.includes("heavy")) tips.push(["🌊","Heavy rain can cause flash floods. Avoid low-lying roads, drains and canals, and check PUB's updates."]);
+  const t = (text2h||"").toLowerCase(), tips = [];
+  if(isWet(t)) tips.push("☂️ Bring an umbrella.");
+  if(t.includes("thunder")) tips.push("⚡ Shelter if you hear thunder.");
   if(!isWet(t)){
     const rec = data["twenty-four-hr-forecast"] && data["twenty-four-hr-forecast"].records && data["twenty-four-hr-forecast"].records[0];
     if(rec){
       const now = Date.now(), soon = now + 12*3600*1000;
       const later = rec.periods.find(p=>{ const s=new Date(p.timePeriod.start).getTime(), e=new Date(p.timePeriod.end).getTime();
         const r = p.regions[a.region]; return e>now && s<soon && r && isWet(r.text); });
-      if(later) tips.push(["☂️",`${later.regions[a.region].text} expected ${hhmm(later.timePeriod.start)} to ${hhmm(later.timePeriod.end)}. Pack an umbrella if you will be out.`]);
+      if(later) tips.push(`☂️ ${later.regions[a.region].text} from ${hhmm(later.timePeriod.start)}. Pack an umbrella.`);
     }
   }
   return tips;
@@ -344,13 +345,13 @@ function render(){
   if(on("forecast2h")){
     html += `<section class="hero"><p class="when">${item ? "Next 2 hours, " + esc(item.valid_period.text) : "Next 2 hours"}</p><p class="cond">${esc(text || "Unavailable")}</p>`;
     if(!text && failed(["two-hr-forecast"])) html += retryBtn(["two-hr-forecast"]);
-    if(prefs.tips){ const tips = weatherTips(text, a); if(tips.length) html += `<ul class="tips">${tips.map(([i,t])=>`<li><span aria-hidden="true">${i}</span>${esc(t)}</li>`).join("")}</ul>`; }
+    if(prefs.tips){ const tips = weatherTips(text, a); if(tips.length) html += `<p class="tip">${tips.map(esc).join("<br>")}</p>`; }
     html += `</section>`;
   }
 
   const tiles = [];
   const tile = (label, val, src, opts={}) => tiles.push(`<div class="tile${opts.wide?" wide":""}"><span class="lbl">${label}</span>${opts.body || `<span class="val">${val}</span>`}<span class="src">${src}</span>${opts.tip && prefs.tips ? `<div class="tip">${opts.tip}</div>` : ""}${opts.retry ? retryBtn(opts.retry) : ""}</div>`);
-  const stationSrc = r => r ? `${esc(r.name)}, ${r.km.toFixed(1)} km away, ${hhmm(r.time)}` : "No reading available";
+  const stationSrc = r => r ? `${esc(r.name.replace("Meteorological Station","Met Station"))}, ${r.km.toFixed(1)} km, ${hhmm(r.time)}` : "No reading";
 
   if(on("air")){
     const it = data.psi && data.psi.items && data.psi.items[0];
@@ -364,26 +365,26 @@ function render(){
     else body += `<div><span class="lbl">1-hour PM2.5</span><div class="val">--</div></div>`;
     body += `</div>`;
     const times = [it && `PSI ${hhmm(it.timestamp)}`, pit && `PM2.5 ${hhmm(pit.timestamp)}`].filter(Boolean).join(", ");
-    let tip = "";
-    if(pm != null) tip += `😷 ${esc(pmAdvice(pm))}`;
-    if(v != null) tip += `${tip?"<br><br>":""}📅 ${esc(psiAdvice(v))}`;
-    if(v != null && v > 100 && v <= 300) tip += `<br><br>N95 masks are not needed for short trips, such as commuting, or indoors (MOH).`;
+    const tl = [];
+    if(pm != null) tl.push("😷 " + pmAdvice(pm));
+    if(v != null) tl.push("📅 " + psiAdvice(v));
+    let tip = tl.map(esc).join("<br>");
+    if((v != null && v > 100) || (pm != null && pm > 55)) tip += `<br><a href="https://www.haze.gov.sg" target="_blank" rel="noopener">Advice for higher-risk groups ↗</a>`;
     const miss = ["psi","pm25"].filter(f=>failedFeeds.has(f) && !data[f]);
-    tile(`Air quality, ${reg.name} region`, "", times || "No reading available", {wide:true, body, tip, retry: miss.length ? miss : null});
+    tile(`Air quality, ${reg.name} region`, "", times || "No reading", {wide:true, body, tip, retry: miss.length ? miss : null});
   }
   if(on("temp")){ const r = nearestReading(data["air-temperature"], a.lat, a.lon); tile("Temperature", r ? `${r.value.toFixed(1)}<small>°C</small>` : "--", stationSrc(r), {retry: !r && failed(["air-temperature"]) ? ["air-temperature"] : null}); }
   if(on("humidity")){ const r = nearestReading(data["relative-humidity"], a.lat, a.lon); tile("Humidity", r ? `${Math.round(r.value)}<small>%</small>` : "--", stationSrc(r), {retry: !r && failed(["relative-humidity"]) ? ["relative-humidity"] : null}); }
   if(on("wind")){ const r = nearestReading(data["wind-speed"], a.lat, a.lon); tile("Wind speed", r ? `${Math.round(/knot/i.test(r.unit) ? r.value*1.852 : r.value)}<small> km/h</small>` : "--", stationSrc(r), {retry: !r && failed(["wind-speed"]) ? ["wind-speed"] : null}); }
   if(on("rain")){
     const r = nearestReading(data["rainfall"], a.lat, a.lon);
-    const tip = r && r.value > 0 ? "☂️ It is raining near you now. Bring an umbrella." : "";
-    tile("Rainfall, last 5 min", r ? (r.value>0 ? `${r.value}<small> mm</small>` : "None") : "--", stationSrc(r), {tip, retry: !r && failed(["rainfall"]) ? ["rainfall"] : null});
+    tile("Rainfall, last 5 min", r ? (r.value>0 ? `${r.value}<small> mm</small>` : "None") : "--", stationSrc(r), {retry: !r && failed(["rainfall"]) ? ["rainfall"] : null});
   }
   if(on("uv")){
     const rec = data.uv && data.uv.records && data.uv.records[0], u = rec && rec.index && rec.index[0];
-    if(u){ const [cat, tip] = uvAdvice(u.value, u.hour);
+    if(u){ const [cat, tip] = uvAdvice(u.value);
       tile("UV index", `${u.value}${cat ? `<small> ${cat}</small>` : ""}`, `Changi, ${hhmm(u.hour)}`, {tip: esc(tip)});
-    } else tile("UV index", "--", "Reported 7am to 7pm", {retry: failed(["uv"]) ? ["uv"] : null});
+    } else tile("UV index", "--", "7am to 7pm only", {retry: failed(["uv"]) ? ["uv"] : null});
   }
   if(tiles.length) html += `<div class="tiles">${tiles.join("")}</div>`;
 
@@ -395,16 +396,20 @@ function render(){
         const r = p.regions[a.region] || Object.values(p.regions)[0];
         return `<li><div class="row"><span class="k">${hhmm(p.timePeriod.start)} to ${hhmm(p.timePeriod.end)}</span><span class="v">${esc(r.text)}</span></div></li>`;
       }).join("");
-      html += `<section class="block"><h2>Today, ${reg.name} region</h2><p class="sub">${g.temperature.low} to ${g.temperature.high}°C, humidity ${g.relativeHumidity.low} to ${g.relativeHumidity.high}%</p><ul class="list">${rows}</ul></section>`;
-    } else if(failed(["twenty-four-hr-forecast"])) html += `<section class="block"><h2>Today</h2><p class="sub">Could not load today's forecast.</p>${retryBtn(["twenty-four-hr-forecast"])}</section>`;
+      html += `<section class="block"><h2>Today, ${reg.name} region</h2><p class="sub">${g.temperature.low} to ${g.temperature.high}°C</p><ul class="list">${rows}</ul></section>`;
+    } else if(failed(["twenty-four-hr-forecast"])) html += `<section class="block"><h2>Today</h2><p class="sub">Could not load.</p>${retryBtn(["twenty-four-hr-forecast"])}</section>`;
   }
   if(on("outlook")){
     const frec = data["four-day-outlook"] && data["four-day-outlook"].records && data["four-day-outlook"].records[0];
     if(frec){
       const rows = frec.forecasts.map(f=>`<li><div class="row"><span class="k">${new Date(f.timestamp).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Singapore"})}</span><span class="mm">${f.temperature.high}° <span>${f.temperature.low}°</span></span></div><div class="note">${esc((f.forecast.summary||f.forecast.text).trim())}</div></li>`).join("");
       html += `<section class="block"><h2>Next 4 days</h2><p class="sub">Singapore-wide</p><ul class="list">${rows}</ul></section>`;
-    } else if(failed(["four-day-outlook"])) html += `<section class="block"><h2>Next 4 days</h2><p class="sub">Could not load the outlook.</p>${retryBtn(["four-day-outlook"])}</section>`;
+    } else if(failed(["four-day-outlook"])) html += `<section class="block"><h2>Next 4 days</h2><p class="sub">Could not load.</p>${retryBtn(["four-day-outlook"])}</section>`;
   }
+  if(html) html += `<section class="block"><h2>Official advisories</h2><div class="links">
+    <a href="https://www.weather.gov.sg" target="_blank" rel="noopener">Weather warnings (MSS) ↗</a>
+    <a href="https://www.haze.gov.sg" target="_blank" rel="noopener">Haze (NEA) ↗</a>
+    <a href="https://info.pub.gov.sg/drainage/floodmanagement/subscribesms" target="_blank" rel="noopener">Flood alerts (PUB) ↗</a></div></section>`;
   if(!html) html = `<div class="empty">Nothing is switched on.<br><button type="button" id="emptyBtn">Choose what to show</button></div>`;
   $("content").innerHTML = html;
   const eb = $("emptyBtn"); if(eb) eb.onclick = openSettings;
