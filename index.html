@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sky SG">
+<meta name="theme-color" content="#2F7FC1">
+<title>Sky SG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#2F7FC1; --ink:#FFFFFF; --soft:rgba(255,255,255,.74); --panel:rgba(255,255,255,.12); --line:rgba(255,255,255,.22); --accent:#9FD3FF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--sky)}
+body{margin:0;min-height:100%;background:var(--sky);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;transition:background .8s,color .8s}
+body[data-sky="clear"]{--sky:#2F7FC1}
+body[data-sky="cloud"]{--sky:#6F8494}
+body[data-sky="rain"]{--sky:#3B4E5E;--accent:#8CC8FF}
+body[data-sky="storm"]{--sky:#2A2940;--accent:#B9A8FF}
+body[data-sky="night"]{--sky:#16223A}
+body[data-sky="haze"]{--sky:#B8B39E;--ink:#26261E;--soft:rgba(38,38,30,.72);--panel:rgba(38,38,30,.08);--line:rgba(38,38,30,.2);--accent:#6B5A1E}
+main{max-width:560px;margin:0 auto;padding:16px 18px 32px}
+.bar{display:flex;gap:8px}
+select{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);font:inherit;-webkit-appearance:none;appearance:none}
+select option{color:#111;background:#fff}
+button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.now{padding:26px 0 6px}
+.valid{font-size:.9rem;color:var(--soft);margin:0}
+.cond{font-family:"Bricolage Grotesque",Georgia,serif;font-weight:600;font-size:clamp(2rem,9vw,2.8rem);line-height:1.05;margin:4px 0 14px}
+.temp{font-family:"Bricolage Grotesque",Georgia,serif;font-weight:300;font-size:clamp(4.5rem,24vw,7.5rem);line-height:.9;letter-spacing:-.04em;margin:0}
+.temp sup{font-size:.35em;vertical-align:.95em;letter-spacing:0}
+.station{font-size:.82rem;color:var(--soft);margin:6px 0 0}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 0;padding:0}
+.facts div{border-top:1px solid var(--line);padding-top:8px}
+.facts dt{font-size:.76rem;color:var(--soft)}
+.facts dd{margin:0;font-weight:600}
+h2{font-family:"Bricolage Grotesque",Georgia,serif;font-weight:600;font-size:1.15rem;margin:30px 0 4px}
+.sub{color:var(--soft);font-size:.86rem;margin:0 0 10px}
+.list{list-style:none;margin:0;padding:0}
+.list li{padding:11px 0;border-top:1px solid var(--line)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.row .k{font-weight:600}
+.row .v{text-align:right}
+.regions{margin:4px 0 0;font-size:.88rem;color:var(--soft)}
+.mm{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mm span{color:var(--soft)}
+.note{font-size:.86rem;color:var(--soft);margin-top:2px}
+.msg{padding:12px 14px;border-radius:12px;background:var(--panel);margin-top:14px;font-size:.92rem}
+footer{margin-top:28px;font-size:.78rem;color:var(--soft)}
+footer a{color:inherit}
+.hidden{display:none}
+@media (prefers-reduced-motion:reduce){body{transition:none}}
+</style>
+</head>
+<body data-sky="clear">
+<main>
+  <div class="bar">
+    <select id="area" aria-label="Choose your area"><option>Loading areas…</option></select>
+    <button type="button" id="locBtn" aria-label="Use my location">📍</button>
+    <button type="button" id="refBtn" aria-label="Refresh">↻</button>
+  </div>
+  <div id="msg" class="msg hidden" role="status"></div>
+
+  <section class="now" aria-live="polite">
+    <p class="valid" id="valid">Next 2 hours</p>
+    <p class="cond" id="cond">--</p>
+    <p class="temp" id="temp">--</p>
+    <p class="station" id="station"></p>
+    <dl class="facts">
+      <div><dt>Humidity</dt><dd id="hum">--</dd></div>
+      <div><dt>Wind</dt><dd id="wind">--</dd></div>
+      <div><dt>Rain (5 min)</dt><dd id="rain">--</dd></div>
+      <div><dt>UV index</dt><dd id="uv">--</dd></div>
+    </dl>
+  </section>
+
+  <h2>Today</h2>
+  <p class="sub" id="todaySub"></p>
+  <ul class="list" id="periods"></ul>
+
+  <h2>Next 4 days</h2>
+  <ul class="list" id="days"></ul>
+
+  <footer>
+    <span id="updated"></span><br>
+    Data: National Environment Agency (NEA) and Meteorological Service Singapore (MSS), via <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a>. For official warnings, use NEA's myENV app or <a href="https://www.weather.gov.sg" target="_blank" rel="noopener">weather.gov.sg</a>.
+  </footer>
+</main>
+
+<script>
+const API = "https://api-open.data.gov.sg/v2/real-time/api/";
+const $ = id => document.getElementById(id);
+let areas = [];        // [{name, lat, lon}]
+let current = null;    // chosen area name
+
+function showMsg(t){ const m=$("msg"); if(!t){m.classList.add("hidden");return;} m.textContent=t; m.classList.remove("hidden"); }
+function saveArea(n){ try{ localStorage.setItem("skysg:area", n); }catch(e){} }
+function loadArea(){ try{ return localStorage.getItem("skysg:area"); }catch(e){ return null; } }
+
+async function get(path){
+  const r = await fetch(API + path);
+  if(!r.ok) throw new Error(path + " HTTP " + r.status);
+  const j = await r.json();
+  if(j.code !== 0 || !j.data) throw new Error(path + " " + (j.errorMsg || "no data"));
+  return j.data;
+}
+
+function dist(aLat,aLon,bLat,bLon){ // approx km, fine for Singapore's size
+  const x = (bLon-aLon)*111.32*Math.cos(aLat*Math.PI/180), y = (bLat-aLat)*110.57;
+  return Math.hypot(x,y);
+}
+function nearestArea(lat,lon){ return areas.reduce((b,a)=> dist(lat,lon,a.lat,a.lon) < dist(lat,lon,b.lat,b.lon) ? a : b); }
+
+// station-based readings: {stations, readings:[{data:[{stationId,value}]}], readingUnit}
+function nearestReading(d, lat, lon){
+  if(!d || !d.stations || !d.readings || !d.readings[0]) return null;
+  const vals = new Map(d.readings[0].data.map(x=>[x.stationId, x.value]));
+  let best=null, bd=Infinity;
+  for(const s of d.stations){
+    if(!vals.has(s.id) || vals.get(s.id)==null) continue;
+    const k = dist(lat, lon, s.location.latitude, s.location.longitude);
+    if(k < bd){ bd=k; best={name:s.name, value:vals.get(s.id), km:k}; }
+  }
+  if(best){ best.unit = d.readingUnit || ""; best.time = d.readings[0].timestamp; }
+  return best;
+}
+
+function skyFor(text){
+  const t = (text||"").toLowerCase();
+  if(t.includes("thunder")) return "storm";
+  if(t.includes("rain") || t.includes("shower") || t.includes("drizzle")) return "rain";
+  if(t.includes("haz") || t.includes("mist") || t.includes("fog")) return "haze";
+  if(t.includes("night")) return "night";
+  if(t.includes("cloud") || t.includes("overcast") || t.includes("windy")) return "cloud";
+  return "clear";
+}
+const hhmm = iso => new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Singapore"});
+
+async function init(){
+  try{
+    const d = await get("two-hr-forecast");
+    areas = d.area_metadata.map(a=>({name:a.name, lat:a.label_location.latitude, lon:a.label_location.longitude}));
+    const sel = $("area"); sel.innerHTML = "";
+    areas.forEach(a=>{ const o=document.createElement("option"); o.value=o.textContent=a.name; sel.appendChild(o); });
+    const saved = loadArea();
+    current = areas.some(a=>a.name===saved) ? saved : "City";
+    sel.value = current;
+    refresh(d);
+  }catch(e){
+    showMsg("Could not reach NEA's data service. Check your connection, then tap ↻.");
+  }
+}
+
+async function refresh(twoHrPre){
+  showMsg("");
+  const area = areas.find(a=>a.name===current);
+  if(!area) return;
+  const calls = await Promise.allSettled([
+    twoHrPre ? Promise.resolve(twoHrPre) : get("two-hr-forecast"),
+    get("air-temperature"), get("relative-humidity"), get("wind-speed"),
+    get("rainfall"), get("uv"), get("twenty-four-hr-forecast"), get("four-day-outlook")
+  ]);
+  const [two, temp, hum, wind, rain, uv, day, four] = calls.map(c => c.status==="fulfilled" ? c.value : null);
+  const failed = calls.filter(c=>c.status!=="fulfilled").length;
+
+  // 2-hour forecast for the area
+  const item = two && two.items && two.items[0];
+  const fc = item && item.forecasts.find(f=>f.area===current);
+  const text = fc ? (typeof fc.forecast === "string" ? fc.forecast : fc.forecast.text) : "Unavailable";
+  $("cond").textContent = text;
+  $("valid").textContent = item ? `${current}, ${item.valid_period.text}` : current;
+  document.body.dataset.sky = skyFor(text);
+  requestAnimationFrame(()=>{ document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.body).getPropertyValue("--sky").trim(); });
+
+  // station readings
+  const t = nearestReading(temp, area.lat, area.lon);
+  $("temp").innerHTML = t ? `${t.value.toFixed(1)}<sup>°C</sup>` : "--";
+  $("station").textContent = t ? `Measured at ${t.name} (${t.km.toFixed(1)} km away), ${hhmm(t.time)}` : "";
+  const h = nearestReading(hum, area.lat, area.lon);
+  $("hum").textContent = h ? Math.round(h.value) + "%" : "--";
+  const w = nearestReading(wind, area.lat, area.lon);
+  if(w){
+    const kmh = /knot/i.test(w.unit) ? w.value*1.852 : w.value;
+    $("wind").textContent = Math.round(kmh) + " km/h";
+  } else $("wind").textContent = "--";
+  const r = nearestReading(rain, area.lat, area.lon);
+  $("rain").textContent = r ? (r.value > 0 ? r.value + " mm" : "None") : "--";
+  const u = uv && uv.records && uv.records[0] && uv.records[0].index && uv.records[0].index[0];
+  $("uv").textContent = u ? u.value : "--";
+
+  // 24-hour forecast
+  const rec = day && day.records && day.records[0];
+  const pl = $("periods"); pl.innerHTML = "";
+  if(rec){
+    const g = rec.general;
+    $("todaySub").textContent = `${g.forecast.text}. ${g.temperature.low} to ${g.temperature.high}°C, humidity ${g.relativeHumidity.low} to ${g.relativeHumidity.high}%, wind ${g.wind.direction} ${Math.round(g.wind.speed.low*1.852)} to ${Math.round(g.wind.speed.high*1.852)} km/h.`;
+    const now = Date.now();
+    rec.periods.filter(p => new Date(p.timePeriod.end).getTime() > now).forEach(p=>{
+      const regs = Object.entries(p.regions);
+      const texts = [...new Set(regs.map(([,v])=>v.text))];
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="row"><span class="k"></span><span class="v"></span></div>`;
+      li.querySelector(".k").textContent = `${hhmm(p.timePeriod.start)} to ${hhmm(p.timePeriod.end)}`;
+      li.querySelector(".v").textContent = texts.length===1 ? texts[0] : "Varies by region";
+      if(texts.length>1){
+        const d = document.createElement("div"); d.className="regions";
+        d.textContent = regs.map(([k,v])=>`${k[0].toUpperCase()+k.slice(1)}: ${v.text}`).join("; ");
+        li.appendChild(d);
+      }
+      pl.appendChild(li);
+    });
+  } else $("todaySub").textContent = "Today's forecast is unavailable right now.";
+
+  // 4-day outlook
+  const dl = $("days"); dl.innerHTML = "";
+  const frec = four && four.records && four.records[0];
+  if(frec){
+    frec.forecasts.forEach(f=>{
+      const li = document.createElement("li");
+      const date = new Date(f.timestamp).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Singapore"});
+      li.innerHTML = `<div class="row"><span class="k"></span><span class="mm"></span></div><div class="note"></div>`;
+      li.querySelector(".k").textContent = date;
+      li.querySelector(".mm").innerHTML = `${f.temperature.high}° <span>${f.temperature.low}°</span>`;
+      li.querySelector(".note").textContent = (f.forecast.summary || f.forecast.text).trim();
+      dl.appendChild(li);
+    });
+  }
+
+  $("updated").textContent = "Checked " + new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Singapore"}) + " SGT.";
+  if(failed) showMsg(`${failed} of 8 NEA data feeds did not load. Tap ↻ to try again.`);
+}
+
+$("area").addEventListener("change", e=>{ current = e.target.value; saveArea(current); refresh(); });
+$("refBtn").addEventListener("click", ()=> areas.length ? refresh() : init());
+$("locBtn").addEventListener("click", ()=>{
+  if(!areas.length) return;
+  if(!navigator.geolocation){ showMsg("This browser cannot share your location. Choose your area from the list."); return; }
+  navigator.geolocation.getCurrentPosition(
+    p=>{ const a = nearestArea(p.coords.latitude, p.coords.longitude); current=a.name; $("area").value=current; saveArea(current); refresh(); },
+    ()=> showMsg("Location access was blocked. Allow it in your browser settings, or choose your area from the list."),
+    {timeout:10000, maximumAge:600000}
+  );
+});
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && areas.length) refresh(); });
+
+init();
+</script>
+</body>
+</html>
