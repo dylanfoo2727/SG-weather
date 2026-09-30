@@ -14,90 +14,124 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200;12..96,400;12..96,600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --sky:#2F7FC1; --ink:#FFFFFF; --soft:rgba(255,255,255,.74); --panel:rgba(255,255,255,.13); --line:rgba(255,255,255,.22);
+  --sky:#2F7FC1; --ink:#FFFFFF; --soft:rgba(255,255,255,.72); --faint:rgba(255,255,255,.5);
+  --panel:rgba(255,255,255,.12); --panel2:rgba(255,255,255,.18); --line:rgba(255,255,255,.2);
   --sheet:#F4F6F8; --sheet-ink:#18212B; --sheet-soft:#5B6773; --sheet-line:#DCE1E6; --pick:#2F6FA8;
+  --c-clear:#F6C85F; --c-partly:#BFD3E6; --c-cloud:#94A6B6; --c-rain:#5FA8F0; --c-storm:#8E7CF0; --c-haze:#C9BE94; --c-night:#34466B;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sheet:#1B232C;--sheet-ink:#EEF2F5;--sheet-soft:#9AA6B2;--sheet-line:#2E3A46;--pick:#7DB8F0}}
 :root[data-theme="dark"]{--sheet:#1B232C;--sheet-ink:#EEF2F5;--sheet-soft:#9AA6B2;--sheet-line:#2E3A46;--pick:#7DB8F0}
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--sky)}
-body{margin:0;min-height:100%;background:var(--sky);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;transition:background .8s,color .8s}
+[hidden]{display:none !important}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--sky);scroll-behavior:smooth}
+body{margin:0;min-height:100%;background:var(--sky);color:var(--ink);font:400 17px/1.45 "Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;transition:background .8s,color .8s;-webkit-font-smoothing:antialiased}
 body[data-sky="clear"]{--sky:#2F7FC1}
-body[data-sky="cloud"]{--sky:#657A8A}
-body[data-sky="rain"]{--sky:#3B4E5E}
+body[data-sky="partly"]{--sky:#3F79A8}
+body[data-sky="cloud"]{--sky:#5E7486}
+body[data-sky="rain"]{--sky:#3A4D5E}
 body[data-sky="storm"]{--sky:#2A2940}
-body[data-sky="night"]{--sky:#16223A}
-body[data-sky="haze"]{--sky:#B8B39E;--ink:#26261E;--soft:rgba(38,38,30,.72);--panel:rgba(38,38,30,.08);--line:rgba(38,38,30,.2)}
-main{max-width:560px;margin:0 auto;padding:12px 16px 40px}
+body[data-sky="night"]{--sky:#141F36}
+body[data-sky="haze"]{--sky:#B8B39E;--ink:#23231B;--soft:rgba(35,35,27,.74);--faint:rgba(35,35,27,.5);--panel:rgba(35,35,27,.08);--panel2:rgba(35,35,27,.12);--line:rgba(35,35,27,.18)}
+main{max-width:560px;margin:0 auto;padding:6px 18px 40px}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:focus-visible,input:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+svg.ic{width:1em;height:1em;vertical-align:-.14em;flex:none}
 
 /* top bar */
-.top{display:flex;gap:10px;align-items:stretch}
-.loc{flex:1;min-width:0;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:9px 14px;color:var(--ink)}
-.loc b{display:block;font-weight:600;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.loc small{color:var(--soft)}
-.loc b::after{content:" ▾";font-weight:400;color:var(--soft)}
-.icon{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 14px;color:var(--ink);font-size:.95rem}
-.status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 2px 0;font-size:.86rem;color:var(--soft)}
-.upd{background:none;border:0;padding:6px 0;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px}
-.upd .spin{display:inline-block}
-.upd[aria-busy="true"] .spin{animation:spin 1s linear infinite}
+.top{display:flex;align-items:center;gap:8px;min-height:52px}
+.loc{flex:1;min-width:0;text-align:left;background:none;border:0;padding:6px 0;color:var(--ink)}
+.loc b{display:block;font-size:1.25rem;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loc b::after{content:" ▾";font-size:.7em;color:var(--soft)}
+.loc small{font-size:.82rem;color:var(--soft)}
+.round{width:44px;height:44px;border-radius:50%;border:0;background:var(--panel);color:var(--ink);display:grid;place-items:center;font-size:1.2rem;flex:none}
+.round[aria-busy="true"] svg{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.msg{padding:11px 14px;border-radius:12px;background:var(--panel);margin-top:10px;font-size:.9rem}
-
-/* hero */
-.hero{padding:22px 2px 6px}
-.hero .when{font-size:.9rem;color:var(--soft);margin:0}
-.hero .cond{font-family:"Bricolage Grotesque",Georgia,serif;font-weight:600;font-size:clamp(2.1rem,10vw,3rem);line-height:1.02;margin:6px 0 0}
-
-/* tiles */
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
-.tile{background:var(--panel);border-radius:16px;padding:12px 14px;min-height:108px;display:flex;flex-direction:column}
-.tile.wide{grid-column:1/-1}
-.tile .lbl{font-size:.82rem;color:var(--soft)}
-.tile .val{font-family:"Bricolage Grotesque",Georgia,serif;font-weight:300;font-size:2.3rem;line-height:1.05;margin:4px 0 2px;letter-spacing:-.02em}
-.tile .val small{font-size:.45em;letter-spacing:0}
-.tile .src{font-size:.74rem;color:var(--soft);margin-top:auto}
-.band{display:inline-block;font-family:"Instrument Sans",sans-serif;font-size:.8rem;font-weight:600;padding:2px 9px;border-radius:999px;vertical-align:middle;margin-left:6px;color:#111}
-.b-good{background:#8FE3A6}.b-mod{background:#9CCBFF}.b-unh{background:#FFD36B}.b-vunh{background:#FF9E6B}.b-haz{background:#FF7A7A}
-
-/* lists */
-.block{margin-top:22px}
-.block h2{font-family:"Bricolage Grotesque",Georgia,serif;font-weight:600;font-size:1.12rem;margin:0 0 2px}
-.block .sub{color:var(--soft);font-size:.85rem;margin:0 0 6px}
-.list{list-style:none;margin:0;padding:0}
-.list li{padding:11px 0;border-top:1px solid var(--line)}
-.row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
-.row .k{font-weight:600}
-.row .v{text-align:right}
-.mm{font-variant-numeric:tabular-nums;white-space:nowrap}
-.mm span{color:var(--soft)}
-.note{font-size:.86rem;color:var(--soft);margin-top:2px}
-.tips{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
-.tips li{background:var(--panel);border-radius:12px;padding:9px 12px;font-size:.9rem;display:flex;gap:9px;align-items:flex-start}
-.tips li span{flex:none}
-.tip{margin-top:8px;font-size:.84rem;line-height:1.4;padding:8px 10px;border-radius:10px;background:var(--panel)}
-.aq{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
-.aq .val{font-size:2rem}
-.retry{margin-top:6px;align-self:flex-start;background:var(--ink);color:var(--sky);border:0;border-radius:10px;padding:6px 12px;font-weight:600;font-size:.85rem}
-.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.links a{color:var(--ink);text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:.88rem}
-.tip a{color:inherit;font-weight:600}
-.hero .tip{margin-top:12px;font-size:.95rem}
-.inst{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.msg{padding:11px 14px;border-radius:14px;background:var(--panel);margin-top:8px;font-size:.9rem}
+.inst:not([hidden]){display:flex;justify-content:space-between;align-items:center;gap:10px}
 .inst-btns{display:flex;gap:6px;flex:none}
 .inst button{border:0;border-radius:10px;padding:7px 12px;font-weight:600}
 #instGo{background:var(--ink);color:var(--sky)}
 #instX{background:transparent;color:var(--ink);padding:7px 8px}
-.empty{margin-top:28px;padding:18px;border-radius:16px;background:var(--panel);text-align:center}
+
+/* hero */
+.hero{padding:14px 0 4px}
+.now-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.big{font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:200;font-size:clamp(6rem,30vw,8.25rem);line-height:.85;letter-spacing:-.05em;margin:0}
+.big sup{font-size:.4em;font-weight:400;vertical-align:1.2em;letter-spacing:0;margin-left:.04em}
+.hilo{text-align:right;padding-top:10px;font-size:1rem;color:var(--soft);font-variant-numeric:tabular-nums}
+.hilo b{color:var(--ink);font-weight:600}
+.cond{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:600;font-size:1.75rem;line-height:1.15;margin:14px 0 6px}
+.cond svg.ic{width:1.15em;height:1.15em}
+.summary{font-size:1.06rem;margin:0;color:var(--ink)}
+.meta{font-size:.82rem;color:var(--faint);margin:8px 0 0}
+
+/* essentials chips */
+.chips-row{display:flex;gap:8px;overflow-x:auto;margin:16px -18px 0;padding:0 18px 2px;scrollbar-width:none}
+.chips-row::-webkit-scrollbar{display:none}
+.echip{flex:none;display:flex;align-items:center;gap:6px;background:var(--panel2);border:0;border-radius:999px;padding:9px 14px;font-size:.95rem;font-weight:500;color:var(--ink);text-decoration:none}
+
+/* sections */
+.sec{margin-top:26px}
+.sec h2{font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:600;font-size:1.25rem;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sec h2 small{font-family:"Instrument Sans",sans-serif;font-weight:400;font-size:.8rem;color:var(--faint)}
+.card{background:var(--panel);border-radius:20px;padding:16px}
+
+/* timeline */
+.tl{display:flex;height:74px;border-radius:14px;overflow:hidden;gap:2px}
+.seg{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.76rem;font-weight:600;color:#10202E;padding:0 4px;text-align:center;line-height:1.1;min-width:0}
+.seg svg.ic{width:1.5em;height:1.5em}
+.seg span{overflow:hidden}
+.k-clear{background:var(--c-clear)}.k-partly{background:var(--c-partly)}.k-cloud{background:var(--c-cloud)}
+.k-rain{background:var(--c-rain)}.k-storm{background:var(--c-storm);color:#fff}.k-haze{background:var(--c-haze)}
+.k-night{background:var(--c-night);color:#fff}.k-partlynight{background:#556A8F;color:#fff}
+.tl-times{display:flex;gap:2px;margin-top:6px;font-size:.8rem;color:var(--soft)}
+.tl-times span{flex:1;min-width:0;padding-left:2px}
+
+
+/* air */
+.aq{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.aq .lbl{font-size:.85rem;color:var(--soft)}
+.aq .n{font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:400;font-size:2.6rem;line-height:1;margin:4px 0 8px}
+.aq .n small{font-size:.4em;font-family:"Instrument Sans",sans-serif;color:var(--soft)}
+.band{display:inline-block;font-size:.82rem;font-weight:600;padding:3px 10px;border-radius:999px;color:#111}
+.b-good{background:#8FE3A6}.b-mod{background:#9CCBFF}.b-unh{background:#FFD36B}.b-vunh{background:#FF9E6B}.b-haz{background:#FF7A7A}
+.tip{margin-top:12px;font-size:.92rem;line-height:1.45;padding:10px 12px;border-radius:12px;background:var(--panel)}
+.tip a{color:inherit;font-weight:600}
+.src{font-size:.78rem;color:var(--faint);margin-top:10px}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--panel);border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;min-height:120px}
+.tile .lbl{font-size:.85rem;color:var(--soft);display:flex;align-items:center;gap:6px}
+.tile .val{font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:400;font-size:2.2rem;line-height:1.05;margin:8px 0 2px;letter-spacing:-.02em}
+.tile .val small{font-family:"Instrument Sans",sans-serif;font-size:.42em;letter-spacing:0;color:var(--soft)}
+.tile .src{margin-top:auto;padding-top:8px}
+.tile .tip{margin-top:10px;font-size:.85rem;padding:8px 10px}
+.tile.wide{grid-column:1/-1}
+
+/* days */
+.days{list-style:none;margin:0;padding:0}
+.days li{display:grid;grid-template-columns:3.4em 1.6em 2.4em 1fr 2.4em;align-items:center;gap:10px;padding:13px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.days li:first-child{border-top:0}
+.days .d{font-weight:600}
+.days .i{font-size:1.3rem;display:flex}
+.days .lo{text-align:right;color:var(--soft)}
+.days .hi{font-weight:600}
+.rng{position:relative;height:6px;border-radius:3px;background:var(--panel2)}
+.rng i{position:absolute;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,#8FD0FF,#FFC76B,#FF8A5B)}
+.days .note{grid-column:2/-1;font-size:.82rem;color:var(--faint);margin-top:-6px}
+
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{color:var(--ink);text-decoration:none;background:var(--panel);border-radius:999px;padding:10px 14px;font-size:.9rem;font-weight:500}
+.retry{margin-top:10px;align-self:flex-start;background:var(--ink);color:var(--sky);border:0;border-radius:10px;padding:7px 12px;font-weight:600;font-size:.88rem}
+.empty{margin-top:28px;padding:18px;border-radius:20px;background:var(--panel);text-align:center}
 .empty button{margin-top:10px;background:var(--ink);color:var(--sky);border:0;border-radius:12px;padding:10px 16px;font-weight:600}
-footer{margin-top:28px;font-size:.76rem;color:var(--soft)}
+footer{margin-top:30px;font-size:.8rem;color:var(--faint)}
 footer a{color:inherit}
 
 /* bottom sheets */
@@ -107,43 +141,38 @@ dialog[open]{animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(24px);opacity:.6}}
 .sh{padding:14px 18px calc(18px + env(safe-area-inset-bottom,0px));overflow-y:auto;max-height:86vh}
 .sh-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.sh-head h3{margin:0;font-family:"Bricolage Grotesque",Georgia,serif;font-weight:600;font-size:1.2rem}
+.sh-head h3{margin:0;font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:600;font-size:1.25rem}
 .done{background:none;border:0;color:var(--pick);font-weight:600;padding:8px 0}
-.hint{color:var(--sheet-soft);font-size:.86rem;margin:0 0 10px}
+.hint{color:var(--sheet-soft);font-size:.9rem;margin:0 0 10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.chip{border:1px solid var(--sheet-line);background:transparent;border-radius:999px;padding:8px 14px}
+.chip{border:1px solid var(--sheet-line);background:transparent;border-radius:999px;padding:9px 15px}
 .chip[aria-pressed="true"]{background:var(--pick);border-color:var(--pick);color:#fff}
 .alist{list-style:none;margin:0;padding:0}
-.alist button{width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--sheet-line);padding:13px 2px;display:flex;justify-content:space-between}
+.alist button{width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--sheet-line);padding:14px 2px;display:flex;justify-content:space-between}
 .alist button[aria-current="true"]{color:var(--pick);font-weight:600}
 .alist button[aria-current="true"]::after{content:"✓"}
-.gps{width:100%;margin-top:12px;border:1px solid var(--sheet-line);background:transparent;border-radius:12px;padding:12px}
+.gps{width:100%;margin-top:12px;border:1px solid var(--sheet-line);background:transparent;border-radius:12px;padding:13px}
 .tog{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;border-top:1px solid var(--sheet-line);gap:12px}
-.tog span small{display:block;color:var(--sheet-soft);font-size:.8rem}
-.sw{appearance:none;-webkit-appearance:none;width:48px;height:28px;border-radius:999px;background:var(--sheet-line);position:relative;flex:none;cursor:pointer;transition:background .15s;margin:0}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.tog span small{display:block;color:var(--sheet-soft);font-size:.82rem}
+.sw{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:999px;background:var(--sheet-line);position:relative;flex:none;cursor:pointer;transition:background .15s;margin:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
 .sw:checked{background:var(--pick)}
 .sw:checked::after{transform:translateX(20px)}
-.group{margin:16px 0 4px;font-weight:600;font-size:.9rem}
-@media (prefers-reduced-motion:reduce){body,.sw,.sw::after{transition:none}dialog[open]{animation:none}.upd[aria-busy="true"] .spin{animation:none}}
+.group{margin:16px 0 4px;font-weight:600;font-size:.92rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}body,.sw,.sw::after{transition:none}dialog[open]{animation:none}.round[aria-busy="true"] svg{animation:none}}
 </style>
 </head>
 <body data-sky="clear">
 <main>
   <div class="top">
     <button class="loc" id="locOpen" aria-haspopup="dialog"><b id="locName">Loading…</b><small id="locRegion">Tap to choose your location</small></button>
-    <button class="icon" id="setOpen" aria-haspopup="dialog">Customise</button>
-  </div>
-  <div class="status">
-    <span id="ago">Getting the latest data…</span>
-    <button class="upd" id="refresh" aria-busy="false"><span class="spin" aria-hidden="true">↻</span> Update now</button>
+    <button class="round" id="refresh" aria-label="Update now" aria-busy="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg></button>
+    <button class="round" id="setOpen" aria-haspopup="dialog" aria-label="Customise"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
   </div>
   <div id="install" class="msg inst" hidden><span id="instText"></span><span class="inst-btns"><button type="button" id="instGo" hidden>Install</button><button type="button" id="instX" aria-label="Dismiss">✕</button></span></div>
   <div id="msg" class="msg" role="status" hidden></div>
-  <div id="content" aria-live="polite"></div>
-  <footer>
-    Data: NEA and MSS via <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a>. Tips are general guidance, not medical advice.
-  </footer>
+  <div id="content" aria-live="polite"><p class="meta" id="ago">Getting the latest data…</p></div>
+  <footer>Data: NEA and MSS via <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a>. Tips are general guidance, not medical advice.</footer>
 </main>
 
 <dialog id="locSheet" aria-labelledby="locTitle">
@@ -167,7 +196,6 @@ dialog[open]{animation:up .22s ease-out}
     <label class="tog"><span>Auto-update<small>Every 5 minutes</small></span><input type="checkbox" class="sw" id="autoSw"></label>
   </div>
 </dialog>
-
 <script>
 const API = "https://api-open.data.gov.sg/v2/real-time/api/";
 const REGIONS = [ // NEA region label locations, from the PSI feed
@@ -176,17 +204,17 @@ const REGIONS = [ // NEA region label locations, from the PSI feed
   {id:"central",name:"Central",lat:1.35735,lon:103.82}
 ];
 const CARDS = [
-  {id:"forecast2h", label:"2-hour forecast", hint:"Your area", feeds:["two-hr-forecast"]},
-  {id:"air", label:"Air quality", hint:"PSI and PM2.5, your region", feeds:["psi","pm25"]},
+  {id:"forecast2h", label:"Forecast summary", hint:"Next 2 hours, your area", feeds:["two-hr-forecast","twenty-four-hr-forecast"]},
   {id:"temp", label:"Temperature", hint:"Nearest weather station", feeds:["air-temperature"]},
+  {id:"today", label:"24-hour timeline", hint:"Your region", feeds:["twenty-four-hr-forecast"]},
+  {id:"air", label:"Air quality", hint:"PSI and PM2.5, your region", feeds:["psi","pm25"]},
   {id:"humidity", label:"Humidity", hint:"Nearest weather station", feeds:["relative-humidity"]},
-  {id:"wind", label:"Wind speed", hint:"Nearest weather station", feeds:["wind-speed"]},
-  {id:"rain", label:"Rainfall now", hint:"Nearest rain gauge", feeds:["rainfall"]},
+  {id:"wind", label:"Wind", hint:"Nearest weather station", feeds:["wind-speed"]},
+  {id:"rain", label:"Rain now", hint:"Nearest rain gauge", feeds:["rainfall"]},
   {id:"uv", label:"UV index", hint:"7am to 7pm", feeds:["uv"]},
-  {id:"today", label:"Today's forecast", hint:"Your region", feeds:["twenty-four-hr-forecast"]},
   {id:"outlook", label:"4-day outlook", hint:"Singapore-wide", feeds:["four-day-outlook"]}
 ];
-const FEED_ORDER = ["two-hr-forecast","psi","pm25","air-temperature","relative-humidity","wind-speed","rainfall","uv","twenty-four-hr-forecast","four-day-outlook"];
+const FEED_ORDER = ["two-hr-forecast","air-temperature","twenty-four-hr-forecast","psi","pm25","uv","relative-humidity","wind-speed","rainfall","four-day-outlook"];
 const FEED_NAME = {"two-hr-forecast":"2-hour forecast","psi":"PSI","pm25":"PM2.5","air-temperature":"temperature","relative-humidity":"humidity","wind-speed":"wind","rainfall":"rainfall","uv":"UV index","twenty-four-hr-forecast":"today's forecast","four-day-outlook":"4-day outlook"};
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
@@ -194,14 +222,21 @@ const sleep = ms => new Promise(r=>setTimeout(r,ms));
 let areas = [], data = {}, failedFeeds = new Set(), fetchedAt = 0, busy = false, pickRegion = null;
 let prefs = {area:"City", cards:Object.fromEntries(CARDS.map(c=>[c.id,true])), auto:true, tips:true};
 try{ const p = JSON.parse(localStorage.getItem("skysg:v2")); if(p) prefs = {...prefs, ...p, cards:{...prefs.cards, ...(p.cards||{})}}; }catch(e){}
-if(prefs.cards.psi !== undefined && prefs.cards.air === undefined) prefs.cards.air = prefs.cards.psi; // from earlier version
 const savePrefs = () => { try{ localStorage.setItem("skysg:v2", JSON.stringify(prefs)); }catch(e){} };
 
 function dist(aLat,aLon,bLat,bLon){ const x=(bLon-aLon)*111.32*Math.cos(aLat*Math.PI/180), y=(bLat-aLat)*110.57; return Math.hypot(x,y); }
 const nearest = (list, lat, lon) => list.reduce((b,a)=> dist(lat,lon,a.lat,a.lon) < dist(lat,lon,b.lat,b.lon) ? a : b);
 const hhmm = iso => new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Singapore"});
+function ampm(iso){ // "3 pm", "3.30 pm", "midnight", "midday"
+  const [h,m] = hhmm(iso).split(":").map(Number);
+  if(m===0 && h===0) return "midnight";
+  if(m===0 && h===12) return "midday";
+  const hr = h%12 || 12;
+  return `${hr}${m ? "." + String(m).padStart(2,"0") : ""} ${h<12 ? "am" : "pm"}`;
+}
 const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function showMsg(t){ const m=$("msg"); m.hidden = !t; m.textContent = t || ""; }
+const sgHour = () => +new Date().toLocaleTimeString("en-GB",{hour:"2-digit",hour12:false,timeZone:"Asia/Singapore"});
 
 // ---------- data ----------
 async function get(path, tries=3){
@@ -219,9 +254,8 @@ async function get(path, tries=3){
   throw lastErr;
 }
 function neededFeeds(){
-  const f = new Set(["two-hr-forecast"]); // always: area list, background colour, rain tips
+  const f = new Set(["two-hr-forecast"]);
   CARDS.forEach(c=>{ if(prefs.cards[c.id]) c.feeds.forEach(x=>f.add(x)); });
-  if(prefs.tips && prefs.cards.forecast2h) f.add("twenty-four-hr-forecast"); // "showers later today" tip
   return FEED_ORDER.filter(x=>f.has(x));
 }
 async function fetchFeeds(list){
@@ -230,18 +264,18 @@ async function fetchFeeds(list){
     await sleep(350);
   }
 }
+function setBusy(b){ busy = b; $("refresh").setAttribute("aria-busy", String(b)); const a=$("ago"); if(a && b) a.textContent = "Updating…"; }
 async function update(only){
   if(busy) return;
-  busy = true; $("refresh").setAttribute("aria-busy","true"); $("ago").textContent = "Updating…"; showMsg("");
+  setBusy(true); showMsg("");
   const list = only || neededFeeds();
   await fetchFeeds(list);
-  // one more attempt for anything that failed, after the rate-limit window resets
   const again = list.filter(f=>failedFeeds.has(f));
-  if(again.length){ $("ago").textContent = "Retrying…"; await sleep(10500); await fetchFeeds(again); }
-  busy = false; $("refresh").setAttribute("aria-busy","false");
+  if(again.length){ await sleep(10500); await fetchFeeds(again); }
+  setBusy(false);
   if(list.some(f=>!failedFeeds.has(f))) fetchedAt = Date.now();
   buildAreas();
-  if(!areas.length){ showMsg("Could not reach NEA. Check your connection and tap Update now."); tickAgo(); return; }
+  if(!areas.length){ showMsg("Could not reach NEA. Check your connection and tap ↻."); tickAgo(); return; }
   render();
   const still = list.filter(f=>failedFeeds.has(f)).map(f=>FEED_NAME[f]);
   if(still.length) showMsg(`Could not load ${still.join(", ")}. Tap Retry.`);
@@ -258,7 +292,6 @@ function buildAreas(){
   if(!areas.some(a=>a.name===prefs.area)) prefs.area = "City";
 }
 const curArea = () => areas.find(a=>a.name===prefs.area);
-
 function nearestReading(d, lat, lon){
   if(!d || !d.stations || !d.readings || !d.readings[0]) return null;
   const vals = new Map(d.readings[0].data.map(x=>[x.stationId, x.value]));
@@ -271,16 +304,42 @@ function nearestReading(d, lat, lon){
   if(best){ best.unit = d.readingUnit || ""; best.time = d.readings[0].timestamp; }
   return best;
 }
-function skyFor(text){
-  const t=(text||"").toLowerCase();
+const shortStation = n => n.replace("Meteorological Station","Met Station");
+
+// ---------- conditions and icons ----------
+function kindFor(text){
+  const t=(text||"").toLowerCase(), night = t.includes("night");
   if(t.includes("thunder")) return "storm";
-  if(t.includes("rain")||t.includes("shower")||t.includes("drizzle")) return "rain";
-  if(t.includes("haz")||t.includes("mist")||t.includes("fog")) return "haze";
-  if(t.includes("night")) return "night";
-  if(t.includes("cloud")||t.includes("overcast")||t.includes("windy")) return "cloud";
-  return "clear";
+  if(/rain|shower|drizzle/.test(t)) return "rain";
+  if(/haz|mist|fog/.test(t)) return "haze";
+  if(t.includes("partly")) return night ? "partlynight" : "partly";
+  if(/cloud|overcast/.test(t)) return "cloud";
+  return night ? "night" : "clear";
 }
+const skyFor = k => ({partlynight:"night"}[k] || k);
 const isWet = t => /rain|shower|drizzle|thunder/i.test(t||"");
+const sentence = t => { const s = (t||"").replace(/\s*\((Day|Night)\)/i,"").toLowerCase(); return s.charAt(0).toUpperCase()+s.slice(1); };
+function shortText(text){ // compact label for the timeline
+  return (text||"").replace(/\s*\((Day|Night)\)/i,"").replace("Thundery Showers","Thundery showers").replace("Partly Cloudy","Partly cloudy").replace("Light Showers","Light showers").replace("Heavy Showers","Heavy showers");
+}
+function icon(k){
+  const S = 'class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+  const cloud = 'M7 18h10a4 4 0 0 0 .4-8A5.5 5.5 0 0 0 6.8 11.2 3.4 3.4 0 0 0 7 18z';
+  const cloudUp = 'M7 15h10a4 4 0 0 0 .4-8A5.5 5.5 0 0 0 6.8 8.2 3.4 3.4 0 0 0 7 15z';
+  const sun = '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>';
+  const moon = '<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/>';
+  switch(k){
+    case "clear": return `<svg ${S}>${sun}</svg>`;
+    case "night": return `<svg ${S}>${moon}</svg>`;
+    case "partly": return `<svg ${S}><circle cx="8.5" cy="8" r="3"/><path d="M8.5 2.5v1.3M3 8h1.3M4.6 4.1l.9.9M12.4 4.1l-.9.9"/><path d="${cloud}"/></svg>`;
+    case "partlynight": return `<svg ${S}><path d="M12.5 6.5A4 4 0 0 1 7 2.8a4.2 4.2 0 1 0 5.5 3.7z"/><path d="${cloud}"/></svg>`;
+    case "cloud": return `<svg ${S}><path d="${cloud}"/></svg>`;
+    case "rain": return `<svg ${S}><path d="${cloudUp}"/><path d="M8.5 18l-1 2.5M12.5 18l-1 2.5M16.5 18l-1 2.5"/></svg>`;
+    case "storm": return `<svg ${S}><path d="${cloudUp}"/><path d="M12.5 15.5l-2 3.5h3l-2 3.5"/></svg>`;
+    case "haze": return `<svg ${S}><path d="M4 9h16M3 13h18M5 17h14"/></svg>`;
+  }
+  return "";
+}
 
 // ---------- bands and advice (NEA / MOH / WHO guidance) ----------
 function psiBand(v){
@@ -290,7 +349,7 @@ function psiBand(v){
   if(v<=300) return ["Very unhealthy","b-vunh"];
   return ["Hazardous","b-haz"];
 }
-function psiAdvice(v){ // 24-hr PSI: for planning ahead
+function psiAdvice(v){
   if(v<=100) return "Planning ahead: normal outdoor plans are fine.";
   if(v<=200) return "Planning ahead: reduce long or strenuous outdoor activity.";
   if(v<=300) return "Planning ahead: avoid long or strenuous outdoor activity.";
@@ -302,133 +361,183 @@ function pmBand(v){
   if(v<=250) return ["High","b-vunh"];
   return ["Very high","b-haz"];
 }
-function pmAdvice(v){ // 1-hr PM2.5: for the next hour
+function pmAdvice(v){
   if(v<=55) return "Next hour: normal activities are fine.";
   if(v<=150) return "Next hour: reduce strenuous outdoor activity.";
   if(v<=250) return "Next hour: avoid strenuous outdoor activity.";
   return "Next hour: minimise time outdoors.";
 }
-function uvAdvice(v){
-  const nowH = +new Date().toLocaleTimeString("en-GB",{hour:"2-digit",hour12:false,timeZone:"Asia/Singapore"});
-  if(nowH >= 19 || nowH < 7) return ["", ""];
-  if(v<=2) return ["Low", "Low risk right now."];
+function uvInfo(v){
+  const h = sgHour();
+  if(h >= 19 || h < 7) return ["", ""];
+  if(v<=2) return ["Low", ""];
   if(v<=5) return ["Moderate", "🧴 SPF 30+ sunscreen, reapply every 2 hours."];
   if(v<=7) return ["High", "🧴 SPF 30+ sunscreen, reapply every 2 hours."];
   if(v<=10) return ["Very high", "🧴 SPF 30+, hat and shade, especially 11am to 3pm."];
   return ["Extreme", "🧴 SPF 30+, cover up, avoid the midday sun."];
 }
-function weatherTips(text2h, a){
-  const t = (text2h||"").toLowerCase(), tips = [];
-  if(isWet(t)) tips.push("☂️ Bring an umbrella.");
-  if(t.includes("thunder")) tips.push("⚡ Shelter if you hear thunder.");
-  if(!isWet(t)){
-    const rec = data["twenty-four-hr-forecast"] && data["twenty-four-hr-forecast"].records && data["twenty-four-hr-forecast"].records[0];
-    if(rec){
-      const now = Date.now(), soon = now + 12*3600*1000;
-      const later = rec.periods.find(p=>{ const s=new Date(p.timePeriod.start).getTime(), e=new Date(p.timePeriod.end).getTime();
-        const r = p.regions[a.region]; return e>now && s<soon && r && isWet(r.text); });
-      if(later) tips.push(`☂️ ${later.regions[a.region].text} from ${hhmm(later.timePeriod.start)}. Pack an umbrella.`);
-    }
-  }
-  return tips;
+
+// ---------- derived values ----------
+function derive(a){
+  const two = data["two-hr-forecast"], item = two && two.items && two.items[0];
+  const fc = item && item.forecasts.find(f=>f.area===a.name);
+  const text2h = fc ? (typeof fc.forecast==="string" ? fc.forecast : fc.forecast.text) : "";
+  const rec = data["twenty-four-hr-forecast"] && data["twenty-four-hr-forecast"].records && data["twenty-four-hr-forecast"].records[0];
+  const now = Date.now();
+  const periods = rec ? rec.periods.filter(p=>new Date(p.timePeriod.end).getTime()>now).map(p=>({start:p.timePeriod.start,end:p.timePeriod.end,text:(p.regions[a.region]||Object.values(p.regions)[0]).text})) : [];
+  const temp = nearestReading(data["air-temperature"], a.lat, a.lon);
+  const psiIt = data.psi && data.psi.items && data.psi.items[0];
+  const psi = psiIt && psiIt.readings.psi_twenty_four_hourly ? psiIt.readings.psi_twenty_four_hourly[a.region] : null;
+  const pmIt = data.pm25 && data.pm25.items && data.pm25.items[0];
+  const pm = pmIt && pmIt.readings && pmIt.readings.pm25_one_hourly ? pmIt.readings.pm25_one_hourly[a.region] : null;
+  const uvRec = data.uv && data.uv.records && data.uv.records[0], uv = uvRec && uvRec.index && uvRec.index[0];
+  return {item, text2h, rec, periods, temp, psi, psiIt, pm, pmIt, uv};
+}
+function summaryLine(d){
+  const parts = [];
+  if(d.text2h && d.item){
+    const end = d.item.valid_period && d.item.valid_period.end;
+    parts.push(end ? `${d.text2h.replace(/\s*\((Day|Night)\)/i,"")} until ${ampm(end)}.` : `${d.text2h}.`);
+    const endT = end ? new Date(end).getTime() : Date.now();
+    const wet = isWet(d.text2h);
+    const next = d.periods.find(p=>new Date(p.start).getTime() >= endT - 60000 && isWet(p.text) !== wet);
+    if(next) parts.push(`${sentence(next.text)} from ${ampm(next.start)}.`);
+  } else if(d.periods[0]) parts.push(`${shortText(d.periods[0].text)} until ${ampm(d.periods[0].end)}.`);
+  return parts.join(" ");
+}
+function essentials(d){
+  const out = [];
+  if(isWet(d.text2h)) out.push(["☂️","Umbrella", prefs.cards.today ? "#sec-today" : "#sec-now"]);
+  else { const soon = Date.now()+12*3600e3; const later = d.periods.find(p=>new Date(p.start).getTime()<soon && isWet(p.text));
+    if(later) out.push(["☂️",`Umbrella from ${ampm(later.start)}`,"#sec-today"]); }
+  if(/thunder/i.test(d.text2h)) out.push(["⚡","Shelter if thunder","#sec-now"]);
+  if(d.uv && d.uv.value >= 3 && uvInfo(d.uv.value)[1]) out.push(["🧴","Sunscreen","#sec-uv"]);
+  if(d.pm != null && d.pm > 55) out.push(["😷",`PM2.5: ${pmBand(d.pm)[0].toLowerCase()}`,"#sec-air"]);
+  else if(d.psi != null && d.psi > 100) out.push(["😷",`Air: ${psiBand(d.psi)[0].toLowerCase()}`,"#sec-air"]);
+  return out;
 }
 
 // ---------- render ----------
 const retryBtn = feeds => `<button type="button" class="retry" data-retry="${feeds.join(",")}">Retry</button>`;
+const gone = feeds => feeds.every(f=>failedFeeds.has(f) && !data[f]);
 function render(){
   const a = curArea(); if(!a) return;
   const reg = REGIONS.find(r=>r.id===a.region);
   $("locName").textContent = a.name;
   $("locRegion").textContent = reg.name + " region";
-
-  const two = data["two-hr-forecast"], item = two && two.items && two.items[0];
-  const fc = item && item.forecasts.find(f=>f.area===a.name);
-  const text = fc ? (typeof fc.forecast==="string" ? fc.forecast : fc.forecast.text) : "";
-  document.body.dataset.sky = skyFor(text);
+  const d = derive(a), on = id => prefs.cards[id];
+  const kind = kindFor(d.text2h || (d.periods[0] && d.periods[0].text));
+  document.body.dataset.sky = skyFor(kind);
   requestAnimationFrame(()=>{ document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.body).getPropertyValue("--sky").trim(); });
 
-  const on = id => prefs.cards[id];
-  const failed = feeds => feeds.every(f=>failedFeeds.has(f) && !data[f]);
   let html = "";
-
-  if(on("forecast2h")){
-    html += `<section class="hero"><p class="when">${item ? "Next 2 hours, " + esc(item.valid_period.text) : "Next 2 hours"}</p><p class="cond">${esc(text || "Unavailable")}</p>`;
-    if(!text && failed(["two-hr-forecast"])) html += retryBtn(["two-hr-forecast"]);
-    if(prefs.tips){ const tips = weatherTips(text, a); if(tips.length) html += `<p class="tip">${tips.map(esc).join("<br>")}</p>`; }
+  // HERO: temperature, condition, summary, high/low
+  if(on("temp") || on("forecast2h")){
+    const g = d.rec && d.rec.general;
+    html += `<section class="hero" id="sec-now">`;
+    if(on("temp")){
+      html += `<div class="now-row"><p class="big">${d.temp ? Math.round(d.temp.value) + "<sup>°C</sup>" : "--"}</p>`;
+      if(g) html += `<div class="hilo">High <b>${g.temperature.high}°</b><br>Low <b>${g.temperature.low}°</b></div>`;
+      html += `</div>`;
+    }
+    if(on("forecast2h")){
+      html += `<p class="cond">${icon(kind)}<span>${esc((d.text2h || "Forecast unavailable").replace(/\s*\((Day|Night)\)/i,""))}</span></p>`;
+      const sum = summaryLine(d); if(sum) html += `<p class="summary">${esc(sum)}</p>`;
+      if(!d.text2h && gone(["two-hr-forecast"])) html += retryBtn(["two-hr-forecast"]);
+    }
+    const metaBits = [];
+    if(on("temp") && d.temp) metaBits.push(`${d.temp.value.toFixed(1)}°C at ${esc(shortStation(d.temp.name))}, ${d.temp.km.toFixed(1)} km`);
+    if(on("temp") && !d.temp && gone(["air-temperature"])) html += retryBtn(["air-temperature"]);
+    metaBits.push(`<span id="ago"></span>`);
+    html += `<p class="meta">${metaBits.join(". ")}</p>`;
+    if(prefs.tips){ const ch = essentials(d); if(ch.length) html += `<div class="chips-row" role="list" aria-label="Before you head out">${ch.map(([i,t,h])=>`<a role="listitem" class="echip" href="${h}"><span aria-hidden="true">${i}</span>${esc(t)}</a>`).join("")}</div>`; }
     html += `</section>`;
-  }
+  } else html += `<p class="meta"><span id="ago"></span></p>`;
 
-  const tiles = [];
-  const tile = (label, val, src, opts={}) => tiles.push(`<div class="tile${opts.wide?" wide":""}"><span class="lbl">${label}</span>${opts.body || `<span class="val">${val}</span>`}<span class="src">${src}</span>${opts.tip && prefs.tips ? `<div class="tip">${opts.tip}</div>` : ""}${opts.retry ? retryBtn(opts.retry) : ""}</div>`);
-  const stationSrc = r => r ? `${esc(r.name.replace("Meteorological Station","Met Station"))}, ${r.km.toFixed(1)} km, ${hhmm(r.time)}` : "No reading";
-
-  if(on("air")){
-    const it = data.psi && data.psi.items && data.psi.items[0];
-    const v = it && it.readings.psi_twenty_four_hourly && it.readings.psi_twenty_four_hourly[a.region];
-    const pit = data.pm25 && data.pm25.items && data.pm25.items[0];
-    const pm = pit && pit.readings && pit.readings.pm25_one_hourly && pit.readings.pm25_one_hourly[a.region];
-    let body = `<div class="aq">`;
-    if(v != null){ const [b,c] = psiBand(v); body += `<div><span class="lbl">24-hour PSI</span><div class="val">${v}</div><span class="band ${c}">${b}</span></div>`; }
-    else body += `<div><span class="lbl">24-hour PSI</span><div class="val">--</div></div>`;
-    if(pm != null){ const [b,c] = pmBand(pm); body += `<div><span class="lbl">1-hour PM2.5</span><div class="val">${pm}<small> µg/m³</small></div><span class="band ${c}">${b}</span></div>`; }
-    else body += `<div><span class="lbl">1-hour PM2.5</span><div class="val">--</div></div>`;
-    body += `</div>`;
-    const times = [it && `PSI ${hhmm(it.timestamp)}`, pit && `PM2.5 ${hhmm(pit.timestamp)}`].filter(Boolean).join(", ");
-    const tl = [];
-    if(pm != null) tl.push("😷 " + pmAdvice(pm));
-    if(v != null) tl.push("📅 " + psiAdvice(v));
-    let tip = tl.map(esc).join("<br>");
-    if((v != null && v > 100) || (pm != null && pm > 55)) tip += `<br><a href="https://www.haze.gov.sg" target="_blank" rel="noopener">Advice for higher-risk groups ↗</a>`;
+  // TIMELINE
+  const timeline = () => {
+    if(!on("today")) return "";
+    if(!d.periods.length) return gone(["twenty-four-hr-forecast"]) ? `<section class="sec" id="sec-today"><h2>Next 24 hours</h2>${retryBtn(["twenty-four-hr-forecast"])}</section>` : "";
+    const segs = d.periods.map(p=>{ const k = kindFor(p.text); return `<div class="seg k-${k}" title="${esc(p.text)}">${icon(k)}<span>${esc(shortText(p.text))}</span></div>`; }).join("");
+    const times = d.periods.map((p,i)=>`<span>${i===0 ? "Now" : ampm(p.start)}</span>`).join("");
+    return `<section class="sec" id="sec-today"><h2>Next 24 hours <small>${reg.name} region</small></h2><div class="tl">${segs}</div><div class="tl-times">${times}</div></section>`;
+  };
+  // AIR QUALITY
+  const air = () => {
+    if(!on("air")) return "";
     const miss = ["psi","pm25"].filter(f=>failedFeeds.has(f) && !data[f]);
-    tile(`Air quality, ${reg.name} region`, "", times || "No reading", {wide:true, body, tip, retry: miss.length ? miss : null});
-  }
-  if(on("temp")){ const r = nearestReading(data["air-temperature"], a.lat, a.lon); tile("Temperature", r ? `${r.value.toFixed(1)}<small>°C</small>` : "--", stationSrc(r), {retry: !r && failed(["air-temperature"]) ? ["air-temperature"] : null}); }
-  if(on("humidity")){ const r = nearestReading(data["relative-humidity"], a.lat, a.lon); tile("Humidity", r ? `${Math.round(r.value)}<small>%</small>` : "--", stationSrc(r), {retry: !r && failed(["relative-humidity"]) ? ["relative-humidity"] : null}); }
-  if(on("wind")){ const r = nearestReading(data["wind-speed"], a.lat, a.lon); tile("Wind speed", r ? `${Math.round(/knot/i.test(r.unit) ? r.value*1.852 : r.value)}<small> km/h</small>` : "--", stationSrc(r), {retry: !r && failed(["wind-speed"]) ? ["wind-speed"] : null}); }
-  if(on("rain")){
-    const r = nearestReading(data["rainfall"], a.lat, a.lon);
-    tile("Rainfall, last 5 min", r ? (r.value>0 ? `${r.value}<small> mm</small>` : "None") : "--", stationSrc(r), {retry: !r && failed(["rainfall"]) ? ["rainfall"] : null});
-  }
-  if(on("uv")){
-    const rec = data.uv && data.uv.records && data.uv.records[0], u = rec && rec.index && rec.index[0];
-    if(u){ const [cat, tip] = uvAdvice(u.value);
-      tile("UV index", `${u.value}${cat ? `<small> ${cat}</small>` : ""}`, `Changi, ${hhmm(u.hour)}`, {tip: esc(tip)});
-    } else tile("UV index", "--", "7am to 7pm only", {retry: failed(["uv"]) ? ["uv"] : null});
-  }
-  if(tiles.length) html += `<div class="tiles">${tiles.join("")}</div>`;
+    let h = `<section class="sec" id="sec-air"><h2>Air quality <small>${reg.name} region</small></h2><div class="card"><div class="aq">`;
+    if(d.psi != null){ const [b,c] = psiBand(d.psi); h += `<div><div class="lbl">24-hour PSI</div><div class="n">${d.psi}</div><span class="band ${c}">${b}</span></div>`; }
+    else h += `<div><div class="lbl">24-hour PSI</div><div class="n">--</div></div>`;
+    if(d.pm != null){ const [b,c] = pmBand(d.pm); h += `<div><div class="lbl">1-hour PM2.5</div><div class="n">${d.pm}<small> µg/m³</small></div><span class="band ${c}">${b}</span></div>`; }
+    else h += `<div><div class="lbl">1-hour PM2.5</div><div class="n">--</div></div>`;
+    h += `</div>`;
+    if(prefs.tips){
+      const tl = []; if(d.pm != null) tl.push("🕐 " + pmAdvice(d.pm)); if(d.psi != null) tl.push("📅 " + psiAdvice(d.psi));
+      if(tl.length){ let t = tl.map(esc).join("<br>");
+        if((d.psi != null && d.psi > 100) || (d.pm != null && d.pm > 55)) t += `<br><a href="https://www.haze.gov.sg" target="_blank" rel="noopener">Advice for higher-risk groups ↗</a>`;
+        h += `<div class="tip">${t}</div>`; }
+    }
+    const times = [d.psiIt && `PSI ${hhmm(d.psiIt.timestamp)}`, d.pmIt && `PM2.5 ${hhmm(d.pmIt.timestamp)}`].filter(Boolean).join(", ");
+    if(times) h += `<div class="src">${times}</div>`;
+    if(miss.length) h += retryBtn(miss);
+    return h + `</div></section>`;
+  };
+  const airBad = (d.psi != null && d.psi > 100) || (d.pm != null && d.pm > 55);
 
-  if(on("today")){
-    const rec = data["twenty-four-hr-forecast"] && data["twenty-four-hr-forecast"].records && data["twenty-four-hr-forecast"].records[0];
-    if(rec){
-      const g = rec.general, now = Date.now();
-      const rows = rec.periods.filter(p=>new Date(p.timePeriod.end).getTime()>now).map(p=>{
-        const r = p.regions[a.region] || Object.values(p.regions)[0];
-        return `<li><div class="row"><span class="k">${hhmm(p.timePeriod.start)} to ${hhmm(p.timePeriod.end)}</span><span class="v">${esc(r.text)}</span></div></li>`;
-      }).join("");
-      html += `<section class="block"><h2>Today, ${reg.name} region</h2><p class="sub">${g.temperature.low} to ${g.temperature.high}°C</p><ul class="list">${rows}</ul></section>`;
-    } else if(failed(["twenty-four-hr-forecast"])) html += `<section class="block"><h2>Today</h2><p class="sub">Could not load.</p>${retryBtn(["twenty-four-hr-forecast"])}</section>`;
+  // Priority order: air quality jumps above the timeline when it is not normal
+  html += airBad ? air() + timeline() : timeline();
+
+  // CONDITIONS GRID
+  const tiles = [];
+  const src = r => r ? `${esc(shortStation(r.name))}, ${r.km.toFixed(1)} km` : "No reading";
+  const tile = (id, label, val, s, extra="") => tiles.push(`<div class="tile" id="${id}"><span class="lbl">${label}</span><span class="val">${val}</span>${extra}<span class="src">${s}</span></div>`);
+  if(on("uv")){
+    if(d.uv){ const [cat, tip] = uvInfo(d.uv.value);
+      tile("sec-uv", "UV index", `${d.uv.value}${cat ? `<small> ${cat}</small>` : ""}`, `Changi, ${hhmm(d.uv.hour)}`, prefs.tips && tip ? `<div class="tip">${esc(tip)}</div>` : "");
+    } else tile("sec-uv", "UV index", "--", "7am to 7pm only", gone(["uv"]) ? retryBtn(["uv"]) : "");
   }
+  if(on("rain")){ const r = nearestReading(data["rainfall"], a.lat, a.lon);
+    tile("sec-rain", "Rain, last 5 min", r ? (r.value>0 ? `${r.value}<small> mm</small>` : "None") : "--", src(r), !r && gone(["rainfall"]) ? retryBtn(["rainfall"]) : ""); }
+  if(on("humidity")){ const r = nearestReading(data["relative-humidity"], a.lat, a.lon);
+    tile("sec-hum", "Humidity", r ? `${Math.round(r.value)}<small>%</small>` : "--", src(r), !r && gone(["relative-humidity"]) ? retryBtn(["relative-humidity"]) : ""); }
+  if(on("wind")){ const r = nearestReading(data["wind-speed"], a.lat, a.lon);
+    tile("sec-wind", "Wind", r ? `${Math.round(/knot/i.test(r.unit) ? r.value*1.852 : r.value)}<small> km/h</small>` : "--", src(r), !r && gone(["wind-speed"]) ? retryBtn(["wind-speed"]) : ""); }
+  if(tiles.length) html += `<section class="sec"><h2>Right now</h2><div class="tiles">${tiles.join("")}</div></section>`;
+
+  if(!airBad) html += air();
+
+  // 4-DAY OUTLOOK with range bars
   if(on("outlook")){
-    const frec = data["four-day-outlook"] && data["four-day-outlook"].records && data["four-day-outlook"].records[0];
-    if(frec){
-      const rows = frec.forecasts.map(f=>`<li><div class="row"><span class="k">${new Date(f.timestamp).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Singapore"})}</span><span class="mm">${f.temperature.high}° <span>${f.temperature.low}°</span></span></div><div class="note">${esc((f.forecast.summary||f.forecast.text).trim())}</div></li>`).join("");
-      html += `<section class="block"><h2>Next 4 days</h2><p class="sub">Singapore-wide</p><ul class="list">${rows}</ul></section>`;
-    } else if(failed(["four-day-outlook"])) html += `<section class="block"><h2>Next 4 days</h2><p class="sub">Could not load.</p>${retryBtn(["four-day-outlook"])}</section>`;
+    const f = data["four-day-outlook"] && data["four-day-outlook"].records && data["four-day-outlook"].records[0];
+    if(f){
+      const lo = Math.min(...f.forecasts.map(x=>x.temperature.low)), hi = Math.max(...f.forecasts.map(x=>x.temperature.high)), span = Math.max(hi-lo,1);
+      const rows = f.forecasts.map(x=>{
+        const k = kindFor(x.forecast.text), l = (x.temperature.low-lo)/span*100, w = (x.temperature.high-x.temperature.low)/span*100;
+        const day = new Date(x.timestamp).toLocaleDateString("en-GB",{weekday:"short",timeZone:"Asia/Singapore"});
+        return `<li><span class="d">${day}</span><span class="i" title="${esc(x.forecast.text)}">${icon(k)}</span><span class="lo">${x.temperature.low}°</span><span class="rng"><i style="left:${l}%;width:${Math.max(w,4)}%"></i></span><span class="hi">${x.temperature.high}°</span><span class="note">${esc((x.forecast.summary||x.forecast.text).trim())}</span></li>`;
+      }).join("");
+      html += `<section class="sec" id="sec-days"><h2>Next 4 days</h2><div class="card"><ul class="days">${rows}</ul></div></section>`;
+    } else if(gone(["four-day-outlook"])) html += `<section class="sec"><h2>Next 4 days</h2>${retryBtn(["four-day-outlook"])}</section>`;
   }
-  if(html) html += `<section class="block"><h2>Official advisories</h2><div class="links">
+
+  const anyOn = CARDS.some(c=>on(c.id));
+  if(anyOn) html += `<section class="sec"><h2>Official advisories</h2><div class="links">
     <a href="https://www.weather.gov.sg" target="_blank" rel="noopener">Weather warnings (MSS) ↗</a>
     <a href="https://www.haze.gov.sg" target="_blank" rel="noopener">Haze (NEA) ↗</a>
     <a href="https://info.pub.gov.sg/drainage/floodmanagement/subscribesms" target="_blank" rel="noopener">Flood alerts (PUB) ↗</a></div></section>`;
-  if(!html) html = `<div class="empty">Nothing is switched on.<br><button type="button" id="emptyBtn">Choose what to show</button></div>`;
+  else html += `<div class="empty">Nothing is switched on.<br><button type="button" id="emptyBtn">Choose what to show</button></div>`;
+
   $("content").innerHTML = html;
   const eb = $("emptyBtn"); if(eb) eb.onclick = openSettings;
   tickAgo();
 }
 function tickAgo(){
-  if(busy) return;
-  if(!fetchedAt){ $("ago").textContent = "Not updated yet"; return; }
+  const el = $("ago"); if(!el) return;
+  if(busy){ el.textContent = "Updating…"; return; }
+  if(!fetchedAt){ el.textContent = "Not updated yet"; return; }
   const m = Math.floor((Date.now()-fetchedAt)/60000);
-  $("ago").textContent = m < 1 ? "Updated just now" : `Updated ${m} min ago`;
+  el.textContent = m < 1 ? "Updated just now" : `Updated ${m} min ago`;
 }
 $("content").addEventListener("click", e=>{
   const b = e.target.closest("[data-retry]");
@@ -440,7 +549,7 @@ function drawAreas(){
   $("regionChips").innerHTML = REGIONS.map(r=>`<button type="button" class="chip" data-r="${r.id}" aria-pressed="${r.id===pickRegion}">${r.name}</button>`).join("");
   $("areaList").innerHTML = areas.filter(a=>a.region===pickRegion).map(a=>`<li><button type="button" data-a="${esc(a.name)}" aria-current="${a.name===prefs.area}">${esc(a.name)}</button></li>`).join("");
 }
-function chooseArea(name){ prefs.area = name; savePrefs(); $("locSheet").close(); render(); }
+function chooseArea(name){ prefs.area = name; savePrefs(); $("locSheet").close(); render(); window.scrollTo(0,0); }
 $("locOpen").onclick = () => { if(!areas.length) return; pickRegion = curArea().region; drawAreas(); $("locSheet").showModal(); };
 $("regionChips").onclick = e => { const b = e.target.closest("[data-r]"); if(b){ pickRegion = b.dataset.r; drawAreas(); } };
 $("areaList").onclick = e => { const b = e.target.closest("[data-a]"); if(b) chooseArea(b.dataset.a); };
@@ -449,7 +558,7 @@ $("gps").onclick = () => {
   $("gps").textContent = "Finding you…";
   navigator.geolocation.getCurrentPosition(
     p => { $("gps").textContent = "📍 Use my current location"; chooseArea(nearest(areas, p.coords.latitude, p.coords.longitude).name); },
-    () => { $("gps").textContent = "📍 Use my current location"; $("locSheet").close(); showMsg("Location access was blocked. Allow it in your browser settings, or pick your area from the list."); },
+    () => { $("gps").textContent = "📍 Use my current location"; $("locSheet").close(); showMsg("Location access was blocked. Allow it in your settings, or pick your area from the list."); },
     {timeout:10000, maximumAge:600000}
   );
 };
@@ -457,8 +566,7 @@ $("gps").onclick = () => {
 // ---------- settings sheet ----------
 function openSettings(){
   $("toggles").innerHTML = `<div class="group">Show on screen</div>` + CARDS.map(c=>`<label class="tog"><span>${c.label}<small>${c.hint}</small></span><input type="checkbox" class="sw" data-c="${c.id}" ${prefs.cards[c.id]?"checked":""}></label>`).join("");
-  $("autoSw").checked = prefs.auto;
-  $("tipsSw").checked = prefs.tips;
+  $("autoSw").checked = prefs.auto; $("tipsSw").checked = prefs.tips;
   $("setSheet").showModal();
 }
 $("setOpen").onclick = openSettings;
@@ -472,7 +580,7 @@ $("setSheet").addEventListener("close", () => {
 
 // ---------- shared ----------
 document.querySelectorAll("[data-close]").forEach(b=> b.onclick = () => b.closest("dialog").close());
-document.querySelectorAll("dialog").forEach(d=> d.addEventListener("click", e=>{ if(e.target===d) d.close(); }));
+document.querySelectorAll("dialog").forEach(dg=> dg.addEventListener("click", e=>{ if(e.target===dg) dg.close(); }));
 $("refresh").onclick = e => { e.currentTarget.blur(); update(); };
 setInterval(()=>{
   tickAgo();
@@ -488,17 +596,16 @@ try{ (function(){
   let dismissed = false; try{ dismissed = localStorage.getItem("skysg:instx") === "1"; }catch(e){}
   if(standalone || dismissed) return;
   const box = $("install"), go = $("instGo");
-  const hide = () => { box.hidden = true; try{ localStorage.setItem("skysg:instx","1"); }catch(e){} };
-  $("instX").onclick = hide;
+  $("instX").onclick = () => { box.hidden = true; try{ localStorage.setItem("skysg:instx","1"); }catch(e){} };
   let deferred = null;
-  window.addEventListener("beforeinstallprompt", e => { // Android Chrome, Edge
+  window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault(); deferred = e;
     $("instText").textContent = "Install Sky SG as an app.";
     go.hidden = false; box.hidden = false;
   });
   go.onclick = async () => { if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; box.hidden = true; };
   window.addEventListener("appinstalled", () => { box.hidden = true; });
-  if(/iphone|ipad|ipod/i.test(navigator.userAgent)){ // iPhone: no install button, show how
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)){
     $("instText").textContent = "Install: tap Share, then Add to Home Screen.";
     box.hidden = false;
   }
